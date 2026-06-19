@@ -93,6 +93,7 @@ def _user_to_response(user: dict) -> dict:
     }
 
 @router.post("/signup", response_model=Token)
+@router.post("/register", response_model=Token)
 async def signup(data: UserCreate):
     col = users_col()
     existing = await col.find_one({"email": data.email})
