@@ -151,6 +151,17 @@ export default function VoiceAssistantFAB() {
 
   // ── Native WAV audio recording ──
   const startRecording = async () => {
+    if (window.location.pathname !== '/voice-consultant') {
+      navigate('/voice-consultant');
+      setTimeout(() => {
+        startRecordingActual();
+      }, 300);
+    } else {
+      startRecordingActual();
+    }
+  };
+
+  const startRecordingActual = async () => {
     setErrorText('');
     leftchannel.current = [];
     recordingLength.current = 0;
@@ -414,7 +425,9 @@ export default function VoiceAssistantFAB() {
             className={`p-3.5 rounded-full text-white shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center relative z-10
               ${isRecording 
                 ? 'bg-red-500 hover:bg-red-600 ring-4 ring-red-100 animate-pulse' 
-                : 'bg-emerald-600 hover:bg-emerald-700 ring-4 ring-emerald-100'}`}
+                : (isPlaying || isProcessing || window.location.pathname === '/voice-consultant')
+                  ? 'bg-emerald-700 hover:bg-emerald-800 ring-4 ring-emerald-250 scale-105'
+                  : 'bg-emerald-600 hover:bg-emerald-700 ring-4 ring-emerald-100'}`}
           >
             {isRecording ? <Square className="w-5 h-5 fill-white" /> : <Mic className="w-5 h-5" />}
           </button>
