@@ -4,6 +4,8 @@ Provides a singleton connection and collection accessors.
 """
 import os
 import asyncio
+import socket
+from urllib.parse import urlparse
 from datetime import datetime, timezone
 from motor.motor_asyncio import AsyncIOMotorClient
 from passlib.context import CryptContext
@@ -265,20 +267,55 @@ def get_seeded_mock_db():
     return mdb
 
 
+def is_mongodb_reachable(uri):
+    try:
+        parsed = urlparse(uri)
+        host = parsed.hostname
+        if not host:
+            return False
+            
+        if "srv" in parsed.scheme:
+            # Check if DNS resolves
+            socket.gethostbyname(host)
+            return True
+            
+        port = parsed.port or 27017
+        with socket.create_connection((host, port), timeout=1.5):
+            return True
+    except Exception:
+        return False
+
+
 def ensure_db():
     """Ensure database is initialized (lazy loading for serverless environments)."""
     global client, db
     if db is not None:
         return db
         
+    is_vercel = os.getenv("VERCEL") is not None
+    is_local_uri = "localhost" in MONGODB_URI or "127.0.0.1" in MONGODB_URI or "placeholder" in MONGODB_URI.lower()
+    
+    if is_local_uri and is_vercel:
+        print("[MongoDB] Running on Vercel with local URI. Falling back to MockDatabase.")
+        db = get_seeded_mock_db()
+        return db
+        
     if "placeholder_please_replace" in MONGODB_URI or "placeholder" in MONGODB_URI.lower():
         db = get_seeded_mock_db()
-    else:
-        try:
-            client = AsyncIOMotorClient(MONGODB_URI)
-            db = client[MONGODB_DB]
-        except Exception as e:
-            db = get_seeded_mock_db()
+        return db
+        
+    # Check reachability before connecting
+    if not is_mongodb_reachable(MONGODB_URI):
+        print(f"[MongoDB] Warning: Host {MONGODB_URI} is unreachable. Falling back to MockDatabase.")
+        db = get_seeded_mock_db()
+        return db
+        
+    try:
+        client = AsyncIOMotorClient(MONGODB_URI, serverSelectionTimeoutMS=2000)
+        db = client[MONGODB_DB]
+    except Exception as e:
+        print(f"[MongoDB] Connection error: {e}. Falling back to MockDatabase.")
+        db = get_seeded_mock_db()
     return db
 
 
@@ -291,7 +328,7 @@ async def connect_db():
         return
         
     try:
-        client = AsyncIOMotorClient(MONGODB_URI)
+        client = AsyncIOMotorClient(MONGODB_URI, serverSelectionTimeoutMS=2000)
         db = client[MONGODB_DB]
         # Verify connection
         await client.admin.command("ping")
