@@ -21,10 +21,22 @@ JWT_SECRET = os.getenv("JWT_SECRET", "smartagri_jwt_secret_key_2026_super_secure
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 JWT_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", "1440"))
 
-def create_token(user_id: str, email: str) -> str:
+def create_token(user_id: str, email: str, user_profile: dict = None) -> str:
     """Create a JWT token."""
     expire = datetime.now(timezone.utc) + timedelta(minutes=JWT_EXPIRE_MINUTES)
     payload = {"sub": user_id, "email": email, "exp": expire}
+    if user_profile:
+        payload["user_profile"] = {
+            "username": user_profile.get("username"),
+            "present_crop": user_profile.get("present_crop"),
+            "present_crop_stage": user_profile.get("present_crop_stage"),
+            "land_acres": user_profile.get("land_acres"),
+            "gps_coordinates": user_profile.get("gps_coordinates"),
+            "state": user_profile.get("state"),
+            "district": user_profile.get("district"),
+            "soil_type": user_profile.get("soil_type"),
+            "preferred_language": user_profile.get("preferred_language")
+        }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 async def get_current_user(request: Request) -> dict:
@@ -37,6 +49,7 @@ async def get_current_user(request: Request) -> dict:
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         user_id = payload.get("sub")
+        email = payload.get("email")
         if not user_id:
             raise HTTPException(status_code=401, detail="Invalid token payload")
     except JWTError:
@@ -45,7 +58,28 @@ async def get_current_user(request: Request) -> dict:
     from bson import ObjectId
     user = await users_col().find_one({"_id": ObjectId(user_id)})
     if not user:
-        raise HTTPException(status_code=401, detail="User not found")
+        # Reconstruct user session on-the-fly from secure JWT payload (for stateless serverless fallback)
+        if "user_profile" in payload:
+            profile = payload["user_profile"]
+            user = {
+                "_id": ObjectId(user_id),
+                "username": profile.get("username"),
+                "email": email,
+                "password_hash": "",
+                "present_crop": profile.get("present_crop"),
+                "present_crop_stage": profile.get("present_crop_stage"),
+                "land_acres": profile.get("land_acres"),
+                "gps_coordinates": profile.get("gps_coordinates"),
+                "state": profile.get("state"),
+                "district": profile.get("district"),
+                "soil_type": profile.get("soil_type"),
+                "preferred_language": profile.get("preferred_language"),
+                "session_context": [],
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            await users_col().insert_one(user)
+        else:
+            raise HTTPException(status_code=401, detail="User not found")
         
     user["id"] = str(user["_id"])
     return user
@@ -160,7 +194,7 @@ async def signup(data: UserCreate):
             
     asyncio.create_task(enrich_user())
     
-    token = create_token(user_id, data.email)
+    token = create_token(user_id, data.email, user_profile=user_doc)
     user_doc["id"] = user_id
     return Token(
         access_token=token,
@@ -175,7 +209,7 @@ async def login(data: UserLogin):
         raise HTTPException(status_code=401, detail="Invalid email or password")
         
     user_id = str(user["_id"])
-    token = create_token(user_id, data.email)
+    token = create_token(user_id, data.email, user_profile=user)
     user["id"] = user_id
     return Token(
         access_token=token,

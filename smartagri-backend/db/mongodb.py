@@ -134,7 +134,7 @@ def get_seeded_mock_db():
     
     # 1. Users
     user_doc = {
-        "_id": ObjectId(),
+        "_id": ObjectId("65ccb2b9d6992d09adb77903"),
         "username": "Murugan Selvam",
         "email": "murugan.selvam@example.com",
         "password_hash": murugan_password_hash,
@@ -162,7 +162,7 @@ def get_seeded_mock_db():
     }
     
     user_alias_doc = dict(user_doc)
-    user_alias_doc["_id"] = ObjectId()
+    user_alias_doc["_id"] = ObjectId("65ccb2b9d6992d09adb77904")
     user_alias_doc["email"] = "murugan@example.com"
     user_alias_doc["username"] = "Murugan"
     
