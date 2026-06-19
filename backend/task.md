@@ -1,0 +1,21 @@
+# SmartAgri Voice Consultant V2 – Checklist
+
+- `[x]` Task 1: Update Pydantic Models & Profile API
+  - `[x]` Modify `backend/models/user.py` to add `farmer_profile` structure
+  - `[x]` Modify `backend/routers/auth.py` to support `PUT /api/auth/profile` and map properties
+- `[x]` Task 2: Subsidies Eligibility Engine
+  - `[x]` Overhaul `backend/routers/subsidies.py` with structured database and filter engine
+- `[x]` Task 3: Renamed Crop Recommendation Engine
+  - `[x]` Refactor `backend/routers/recommendations.py` to remove "exotic" references
+  - `[x]` Refactor `backend/services/gemini_service.py` to rename `recommend_exotic_crop` and use pH, weather, and region
+- `[x]` Task 4: Tool-Based Agent & Context Injection
+  - `[x]` Create `backend/services/agent_tools.py` with the 6 Python farming tools
+  - `[x]` Modify `backend/services/openai_service.py` and `backend/services/groq_service.py` with the dual-layer agent system prompts
+  - `[x]` Modify `backend/routers/voice_consultant.py` to inject context and parse tool-based JSON outputs
+- `[x]` Task 5: Frontend UI Upgrades
+  - `[x]` Modify `frontend/src/context/LanguageContext.jsx` to sync user preferred language with backend
+  - `[x]` Modify `frontend/src/pages/VoiceConsultant.jsx` to support settings editing, data cards rendering, conversational diagnosis, suggestions, and autoplay
+  - `[x]` Modify `frontend/src/components/VoiceAssistantFAB.jsx` to render suggestions based on pathname and prevent English leakage
+- `[x]` Task 6: Verification & Final Walkthrough
+  - `[x]` Update `backend/check_converse.py` and run verification tests
+  - `[x]` Complete walkthrough documentation
