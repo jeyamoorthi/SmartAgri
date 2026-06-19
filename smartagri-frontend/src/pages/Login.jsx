@@ -18,12 +18,31 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    const emailKey = formData.email.trim().toLowerCase();
+
     try {
       const res = await API.post('/api/auth/login', formData);
       localStorage.setItem('smartagri_token', res.data.access_token);
       localStorage.setItem('smartagri_user', JSON.stringify(res.data.user));
       navigate('/voice-consultant');
     } catch (err) {
+      // Check if we can recover the session from local offline profiles
+      try {
+        const offlineProfiles = JSON.parse(localStorage.getItem('smartagri_offline_profiles') || '{}');
+        const savedProfile = offlineProfiles[emailKey];
+        if (savedProfile && savedProfile.password === formData.password) {
+          console.log("[Offline Session Recovery] Re-registering user due to serverless container wipe...");
+          // Try to re-register the user on-the-fly
+          const regRes = await API.post('/api/auth/register', savedProfile);
+          localStorage.setItem('smartagri_token', regRes.data.access_token);
+          localStorage.setItem('smartagri_user', JSON.stringify(regRes.data.user));
+          navigate('/voice-consultant');
+          return;
+        }
+      } catch (recoveryErr) {
+        console.error("Offline recovery attempt failed:", recoveryErr);
+      }
+
       const detail = err.response?.data?.detail;
       let errorMsg = 'Login failed. Please check your credentials.';
       if (detail) {

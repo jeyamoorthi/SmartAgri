@@ -51,6 +51,16 @@ export default function SignUp() {
     setIsLoading(true);
     try {
       await API.post('/api/auth/register', formData);
+      
+      // Save profile to localStorage for offline fallback session recovery
+      try {
+        const offlineProfiles = JSON.parse(localStorage.getItem('smartagri_offline_profiles') || '{}');
+        offlineProfiles[formData.email.trim().toLowerCase()] = formData;
+        localStorage.setItem('smartagri_offline_profiles', JSON.stringify(offlineProfiles));
+      } catch (err_offline) {
+        console.error("Failed to store offline profile fallback:", err_offline);
+      }
+
       alert('Registration successful! Please login.');
       navigate('/login');
     } catch (err) {
