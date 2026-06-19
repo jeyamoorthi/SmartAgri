@@ -39,14 +39,14 @@ SmartAgri is a modern, voice-first agricultural consultant designed specifically
 
 ```text
 SmartAgri/
-├── backend/                  # FastAPI Application
+├── smartagri-backend/        # FastAPI Application
 │   ├── core/                 # AI Gateway & core orchestration
 │   ├── db/                   # MongoDB connection & seeding
 │   ├── models/               # Pydantic schemas
 │   ├── routers/              # API endpoints (Auth, Advisory, Voice, Subsidies, etc.)
 │   ├── services/             # Bhashini, Groq, Gemini, and Weather integrations
 │   └── main.py               # Backend Entrypoint
-├── frontend/                 # Vite React Application
+├── smartagri-frontend/       # Vite React Application
 │   ├── src/
 │   │   ├── api/              # Axios wrappers
 │   │   ├── components/       # UI Cards (Market, Weather, Subsidies, etc.)
@@ -66,7 +66,7 @@ Ensure you have **MongoDB** running locally at `mongodb://localhost:27017`.
 ### 1. Backend Setup
 1. Navigate to the backend directory:
    ```bash
-   cd backend
+   cd smartagri-backend
    ```
 2. Create a `.env` file from the example:
    ```bash
@@ -95,7 +95,7 @@ Ensure you have **MongoDB** running locally at `mongodb://localhost:27017`.
 ### 2. Frontend Setup
 1. Navigate to the frontend directory:
    ```bash
-   cd ../frontend
+   cd ../smartagri-frontend
    ```
 2. Create a `.env` file:
    ```env
@@ -113,11 +113,30 @@ Ensure you have **MongoDB** running locally at `mongodb://localhost:27017`.
 
 ---
 
-## ☁️ Cloud Deployment (Render Blueprint)
-
-This project is pre-configured with a Render Blueprint (`render.yaml`). To deploy both frontend and backend instantly:
-
-1. Connect your GitHub repository to [Render](https://dashboard.render.com).
-2. Choose **New +** > **Blueprint**.
-3. Render will automatically detect the FastAPI backend and Vite static site.
-4. Input your environment variables (`MONGODB_URI`, `GROQ_API_KEY`, `GEMINI_API_KEY`, and Bhashini keys) in the backend service configuration during setup, and click **Deploy**.
+## ☁️ Cloud Deployment
+ 
+ ### 1. Vercel Hosting (Recommended)
+ Both the frontend and backend are optimized for serverless hosting on Vercel:
+ 
+ * **FastAPI Backend**: [https://smartagri-backend.vercel.app](https://smartagri-backend.vercel.app)
+ * **React Frontend**: [https://smartagri-frontend-nine.vercel.app](https://smartagri-frontend-nine.vercel.app)
+ 
+ #### How to Deploy to Vercel:
+ 1. Install Vercel CLI: `npm install -g vercel`
+ 2. Deploy Backend:
+    * Go to `smartagri-backend/` and run `vercel --prod`
+    * Add your secrets in Vercel Environment Variables:
+      * `MONGODB_URI` (your MongoDB Atlas connection string)
+      * `GEMINI_API_KEY`, `GROQ_API_KEY`, `BHASHINI_USER_ID`, `BHASHINI_API_KEY`, `BHASHINI_AUTH`
+ 3. Deploy Frontend:
+    * Go to `smartagri-frontend/` and run `vercel --prod`
+    * Add Environment Variable:
+      * `VITE_API_URL` (pointing to your live backend URL, e.g., `https://smartagri-backend.vercel.app`)
+ 
+ ### 2. Render Hosting (Render Blueprint)
+ This project is pre-configured with a Render Blueprint (`render.yaml`). To deploy both frontend and backend instantly:
+ 
+ 1. Connect your GitHub repository to [Render](https://dashboard.render.com).
+ 2. Choose **New +** > **Blueprint**.
+ 3. Render will automatically detect the FastAPI backend and Vite static site.
+ 4. Input your environment variables (`MONGODB_URI`, `GROQ_API_KEY`, `GEMINI_API_KEY`, and Bhashini keys) in the backend service configuration during setup, and click **Deploy**.
