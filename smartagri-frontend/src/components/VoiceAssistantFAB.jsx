@@ -339,7 +339,7 @@ export default function VoiceAssistantFAB() {
   };
 
   return (
-    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-50 flex flex-col items-center select-none pointer-events-none pb-[calc(10px+env(safe-area-inset-bottom))]">
+    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-50 flex flex-col items-center select-none pointer-events-none pb-[calc(14px+env(safe-area-inset-bottom))]">
       
       {/* ── Dialogue/Transcript Bubble ── */}
       {showBubble && dialogue && (
@@ -405,8 +405,8 @@ export default function VoiceAssistantFAB() {
         </div>
       )}
 
-      {/* ── FAB Mic Trigger Button & Label ── */}
-      <div className="pointer-events-auto relative flex flex-col items-center justify-center mb-1">
+      {/* ── FAB Mic Trigger Button (Alone) ── */}
+      <div className="pointer-events-auto relative flex items-center justify-center mb-1.5">
         <div className={`relative flex items-center justify-center ${!isRecording && !isProcessing && !isPlaying ? 'animate-pulse-ring' : ''}`}>
           <button
             onClick={isRecording ? stopRecording : startRecording}
@@ -419,13 +419,6 @@ export default function VoiceAssistantFAB() {
             {isRecording ? <Square className="w-5 h-5 fill-white" /> : <Mic className="w-5 h-5" />}
           </button>
         </div>
-        
-        {/* Centered Label under the button, aligning with bottom nav labels */}
-        <span className={`text-[10px] font-bold mt-1 tracking-tight transition-colors duration-200 ${
-          isRecording ? 'text-red-500' : isPlaying || isProcessing ? 'text-[var(--brand-700)]' : 'text-gray-400'
-        }`}>
-          {t('voiceConsultant').split(' ')[0]}
-        </span>
       </div>
 
       {/* ── Hidden Audio Playback Element ── */}
