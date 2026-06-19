@@ -52,24 +52,46 @@ class MockCollection:
             self.data.append(dict(doc))
         return None
 
+    def _match_item(self, item, filter_dict):
+        if not filter_dict:
+            return True
+        for k, v in filter_dict.items():
+            if k == "$or":
+                if not isinstance(v, list):
+                    return False
+                if not any(self._match_item(item, sub) for sub in v):
+                    return False
+                continue
+            if k == "_id":
+                if str(item.get("_id")) != str(v):
+                    return False
+                continue
+            if isinstance(v, dict) and "$regex" in v:
+                pattern = v["$regex"]
+                val = item.get(k)
+                if val is None:
+                    return False
+                if isinstance(val, list):
+                    if not any(pattern.lower() in str(x).lower() for x in val):
+                        return False
+                else:
+                    if pattern.lower() not in str(val).lower():
+                        return False
+                continue
+            
+            # Standard equality
+            val = item.get(k)
+            if isinstance(val, list) and not isinstance(v, list):
+                if v not in val:
+                    return False
+            else:
+                if val != v:
+                    return False
+        return True
+
     async def find_one(self, filter, sort=None):
         for item in self.data:
-            match = True
-            for k, v in filter.items():
-                if k == "_id":
-                    if str(item.get("_id")) != str(v):
-                        match = False
-                        break
-                elif isinstance(v, dict) and "$regex" in v:
-                    pattern = v["$regex"]
-                    if not pattern.lower() in item.get(k, "").lower():
-                        match = False
-                        break
-                else:
-                    if item.get(k) != v:
-                        match = False
-                        break
-            if match:
+            if self._match_item(item, filter):
                 return dict(item)
         return None
         
@@ -100,18 +122,7 @@ class MockCollection:
         filter = filter or {}
         results = []
         for item in self.data:
-            match = True
-            for k, v in filter.items():
-                if isinstance(v, dict) and "$regex" in v:
-                    pattern = v["$regex"]
-                    if not pattern.lower() in item.get(k, "").lower():
-                        match = False
-                        break
-                else:
-                    if item.get(k) != v:
-                        match = False
-                        break
-            if match:
+            if self._match_item(item, filter):
                 results.append(dict(item))
         return MockCursor(results)
 

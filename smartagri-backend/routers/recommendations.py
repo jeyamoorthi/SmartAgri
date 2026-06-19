@@ -9,7 +9,7 @@ from db.mongodb import (
     users_col, vendors_col, exotic_recommendations_col, market_trends_col
 )
 from models.user import CropInterest
-from routers.auth import get_current_user
+from routers.auth import get_current_user, _user_to_response
 from services.gemini_service import recommend_next_crop
 from services.email_service import send_vendor_introduction
 
@@ -23,7 +23,7 @@ async def get_crop_recommendation(current_user: dict = Depends(get_current_user)
     Matches with local vendors and stores the recommendation.
     """
     user_id = str(current_user["_id"])
-    profile = current_user.get("farmer_profile") or {}
+    profile = _user_to_response(current_user)["farmer_profile"]
 
     # Check if recent recommendation exists and matches the user's current profile settings
     existing = await exotic_recommendations_col().find_one(

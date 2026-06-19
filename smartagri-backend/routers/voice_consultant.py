@@ -17,7 +17,7 @@ from services.groq_service import ask_groq, parse_intent_and_advisory
 from services.openai_service import parse_intent_openai
 from services.bleu_service import calculate_bleu
 from core.ai_gateway import AIGateway
-from routers.auth import get_current_user
+from routers.auth import get_current_user, _user_to_response
 from db.mongodb import market_trends_col, users_col
 from services.agent_tools import (
     get_market_price,
@@ -236,7 +236,7 @@ async def api_converse(request: Request, current_user: dict = Depends(get_curren
             transcribed, english = await bhashini_asr_translate(wav_bytes, lang_code)
 
         # ── Pre-fetch context based on query & user profile ──
-        profile = current_user.get("farmer_profile") or {}
+        profile = _user_to_response(current_user)["farmer_profile"]
         tool_context = await prefetch_agent_context(english, profile)
 
         # ── Use Semantic Intent Parser via OpenAI first, fallback to Groq ──

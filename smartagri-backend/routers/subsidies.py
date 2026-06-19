@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 from typing import Optional
-from routers.auth import get_current_user
+from routers.auth import get_current_user, _user_to_response
 
 router = APIRouter(prefix="/api/subsidies", tags=["subsidies"])
 
@@ -109,7 +109,7 @@ async def get_subsidies(
     Get government subsidies and schemes based on the farmer's state, crop, and farm size.
     Calculates estimated benefit and required documents.
     """
-    profile = current_user.get("farmer_profile") or {}
+    profile = _user_to_response(current_user)["farmer_profile"]
     
     # Resolve parameters prioritizing current user profile
     s_state = profile.get("state", state) or state

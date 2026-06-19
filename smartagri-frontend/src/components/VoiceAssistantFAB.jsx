@@ -7,7 +7,7 @@ import { useLanguage } from '../context/LanguageContext';
 export default function VoiceAssistantFAB() {
   const navigate = useNavigate();
 
-  const { language: selectedLang, changeLanguage } = useLanguage();
+  const { language: selectedLang, changeLanguage, t } = useLanguage();
   const [languages, setLanguages] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -339,11 +339,11 @@ export default function VoiceAssistantFAB() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 select-none">
+    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-50 flex flex-col items-center select-none pointer-events-none pb-[calc(10px+env(safe-area-inset-bottom))]">
       
       {/* ── Dialogue/Transcript Bubble ── */}
       {showBubble && dialogue && (
-        <div className="bg-white/95 backdrop-blur-md border border-emerald-100 rounded-3xl p-4 shadow-2xl max-w-sm w-80 text-left animate-fade-in flex flex-col gap-2 relative">
+        <div className="bg-white/95 backdrop-blur-md border border-emerald-100 rounded-3xl p-4 shadow-2xl w-[90%] max-w-[360px] text-left animate-fade-in flex flex-col gap-2 relative pointer-events-auto mb-2">
           <button 
             onClick={() => setShowBubble(false)} 
             className="absolute top-2 right-2 p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100"
@@ -372,45 +372,41 @@ export default function VoiceAssistantFAB() {
 
       {/* ── Error Toast ── */}
       {errorText && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-xs px-4 py-2 rounded-xl shadow-lg flex items-center gap-2 animate-bounce">
+        <div className="bg-red-50 border border-red-200 text-red-700 text-xs px-4 py-2 rounded-xl shadow-lg flex items-center gap-2 animate-bounce pointer-events-auto mb-2">
           <AlertCircle className="w-4 h-4 text-red-500" />
           <span className="font-semibold">{errorText}</span>
         </div>
       )}
 
+      {/* ── Floating Status Pill (Visualizer / Analyzing / Speaking) ── */}
+      {(isRecording || isProcessing || isPlaying) && (
+        <div className="bg-white/95 backdrop-blur-xl border border-emerald-100 px-4 py-2.5 rounded-full shadow-lg flex items-center justify-center gap-2 pointer-events-auto animate-fade-in mb-3">
+          {isRecording ? (
+            <div className="flex items-end gap-[3px] h-5 px-2">
+              {visualizerBars.map((h, i) => (
+                <div 
+                  key={i} 
+                  className="w-[2.5px] bg-emerald-500 rounded-full transition-all duration-75" 
+                  style={{ height: `${h * 0.7}px` }} 
+                />
+              ))}
+            </div>
+          ) : isProcessing ? (
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-500">
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-600" />
+              <span>Analyzing...</span>
+            </div>
+          ) : isPlaying ? (
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
+              <Volume2 className="w-3.5 h-3.5 animate-pulse" />
+              <span>Speaking...</span>
+            </div>
+          ) : null}
+        </div>
+      )}
 
-
-      {/* ── FAB UI Panel ── */}
-      <div className="flex items-center gap-3 bg-white/90 backdrop-blur-xl border border-gray-100 px-4 py-3 rounded-full shadow-2xl">
-        
-
-
-        {/* Visualizer Wave or Status */}
-        {isRecording ? (
-          <div className="flex items-end gap-[3px] h-6 px-2">
-            {visualizerBars.map((h, i) => (
-              <div 
-                key={i} 
-                className="w-[3px] bg-emerald-500 rounded-full transition-all duration-75" 
-                style={{ height: `${h}px` }} 
-              />
-            ))}
-          </div>
-        ) : isProcessing ? (
-          <div className="flex items-center gap-1 text-[11px] font-bold text-gray-400 px-2">
-            <RefreshCw className="w-3 h-3 animate-spin text-emerald-600" />
-            <span>Analyzing...</span>
-          </div>
-        ) : isPlaying ? (
-          <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 px-2">
-            <Volume2 className="w-3 h-3 animate-pulse" />
-            <span>Speaking...</span>
-          </div>
-        ) : (
-          <span className="text-[11px] font-bold text-gray-400 px-2 tracking-wide">Ask Krishi (Voice)</span>
-        )}
-
-        {/* Floating Recording Trigger Button */}
+      {/* ── FAB Mic Trigger Button & Label ── */}
+      <div className="pointer-events-auto relative flex flex-col items-center justify-center mb-1">
         <div className={`relative flex items-center justify-center ${!isRecording && !isProcessing && !isPlaying ? 'animate-pulse-ring' : ''}`}>
           <button
             onClick={isRecording ? stopRecording : startRecording}
@@ -423,7 +419,13 @@ export default function VoiceAssistantFAB() {
             {isRecording ? <Square className="w-5 h-5 fill-white" /> : <Mic className="w-5 h-5" />}
           </button>
         </div>
-
+        
+        {/* Centered Label under the button, aligning with bottom nav labels */}
+        <span className={`text-[10px] font-bold mt-1 tracking-tight transition-colors duration-200 ${
+          isRecording ? 'text-red-500' : isPlaying || isProcessing ? 'text-[var(--brand-700)]' : 'text-gray-400'
+        }`}>
+          {t('voiceConsultant').split(' ')[0]}
+        </span>
       </div>
 
       {/* ── Hidden Audio Playback Element ── */}

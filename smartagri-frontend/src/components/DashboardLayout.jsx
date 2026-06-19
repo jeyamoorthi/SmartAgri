@@ -83,10 +83,12 @@ export default function DashboardLayout() {
     );
   }
 
-  const navItems = [
-    { path: '/voice-consultant', label: t('voiceConsultant').split(' ')[0], icon: Mic },
+  const navItemsLeft = [
     { path: '/home', label: t('home'), icon: Home },
     { path: '/market', label: t('market'), icon: TrendingUp },
+  ];
+
+  const navItemsRight = [
     { path: '/pest', label: t('pest'), icon: ShieldAlert },
     { path: '/recommendations', label: t('crops'), icon: Award },
   ];
@@ -135,23 +137,51 @@ export default function DashboardLayout() {
       </main>
 
       {/* ── Bottom Navigation ── */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-40 bg-white/95 backdrop-blur-xl border-t border-[var(--line)] px-2 py-2 flex items-center justify-around shadow-lg safe-bottom">
-        {navItems.map(({ path, label, icon: Icon }) => (
-          <NavLink
-            key={path}
-            to={path}
-            className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200 text-[10px] font-bold ${
-                isActive
-                  ? 'text-[var(--brand-700)] bg-[var(--brand-50)]'
-                  : 'text-gray-400 hover:text-gray-600'
-              }`
-            }
-          >
-            <Icon className="w-5 h-5" />
-            {label}
-          </NavLink>
-        ))}
+      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-40 bg-white/95 backdrop-blur-xl border-t border-[var(--line)] px-1 py-1.5 flex items-center justify-between shadow-lg safe-bottom">
+        
+        {/* Left items */}
+        <div className="flex items-center justify-around flex-1">
+          {navItemsLeft.map(({ path, label, icon: Icon }) => (
+            <NavLink
+              key={path}
+              to={path}
+              className={({ isActive }) =>
+                `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200 text-[10px] font-bold ${
+                  isActive
+                    ? 'text-[var(--brand-700)] bg-[var(--brand-50)]'
+                    : 'text-gray-400 hover:text-gray-600'
+                }`
+              }
+            >
+              <Icon className="w-5 h-5" />
+              <span className="truncate max-w-[70px]">{label}</span>
+            </NavLink>
+          ))}
+        </div>
+
+        {/* Center Spacer */}
+        <div className="w-16 h-12 flex-shrink-0 flex items-center justify-center relative" />
+
+        {/* Right items */}
+        <div className="flex items-center justify-around flex-1">
+          {navItemsRight.map(({ path, label, icon: Icon }) => (
+            <NavLink
+              key={path}
+              to={path}
+              className={({ isActive }) =>
+                `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200 text-[10px] font-bold ${
+                  isActive
+                    ? 'text-[var(--brand-700)] bg-[var(--brand-50)]'
+                    : 'text-gray-400 hover:text-gray-600'
+                }`
+              }
+            >
+              <Icon className="w-5 h-5" />
+              <span className="truncate max-w-[70px]">{label}</span>
+            </NavLink>
+          ))}
+        </div>
+
       </nav>
 
       {/* ── Floating Voice Assistant FAB ── */}
