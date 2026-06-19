@@ -22,7 +22,7 @@ async def report_pest(
     lng = coords.get("lng", 0)
     
     reporter_name = current_user.get("username", "Anonymous")
-    crop = data.crop if data.crop else current_user.get("present_crop", "")
+    crop = data.crop if data.crop else (current_user.get("present_crop") or "")
     
     alert_doc = {
         "reported_by_user_id": user_id,
@@ -33,7 +33,7 @@ async def report_pest(
         "location_coords": {"lat": lat, "lng": lng},
         "image_base64": data.image_base64,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "notified_cluster": current_user.get("cluster_id", "")
+        "notified_cluster": current_user.get("cluster_id") or ""
     }
     
     result = await pest_alerts_col().insert_one(alert_doc)
@@ -83,10 +83,10 @@ async def report_pest(
 @router.get("/alerts")
 async def get_alerts(current_user: dict = Depends(get_current_user)):
     """Fetch nearby pest alerts for the user's cluster or coordinates."""
-    cluster_id = current_user.get("cluster_id", "")
-    coords = current_user.get("gps_coordinates", {})
-    lat = coords.get("lat", 0)
-    lng = coords.get("lng", 0)
+    cluster_id = current_user.get("cluster_id") or ""
+    coords = current_user.get("gps_coordinates") or {}
+    lat = coords.get("lat") or 0
+    lng = coords.get("lng") or 0
     
     alerts = await pest_alerts_col().find(
         {"$or": [

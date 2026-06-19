@@ -19,14 +19,14 @@ async def generate_plan(
     user_id = str(current_user["_id"])
     
     profile = {
-        "present_crop": current_user.get("present_crop", "paddy"),
-        "present_crop_stage": current_user.get("present_crop_stage", "vegetative"),
+        "present_crop": current_user.get("present_crop") or "paddy",
+        "present_crop_stage": current_user.get("present_crop_stage") or "vegetative",
         "land_acres": current_user.get("land_acres", 2),
-        "gps_coordinates": current_user.get("gps_coordinates", {}),
-        "past_crop": current_user.get("past_crop", ""),
-        "past_disease": current_user.get("past_disease", ""),
-        "soil_data": current_user.get("soil_data", {}),
-        "weather_data": current_user.get("weather_data", {}),
+        "gps_coordinates": current_user.get("gps_coordinates") or {},
+        "past_crop": current_user.get("past_crop") or "",
+        "past_disease": current_user.get("past_disease") or "",
+        "soil_data": current_user.get("soil_data") or {},
+        "weather_data": current_user.get("weather_data") or {},
         "include_sustainable": req.include_sustainable
     }
     
@@ -56,7 +56,7 @@ async def generate_plan(
     
     async def schedule_reminders():
         email = current_user.get("email", "")
-        crop = current_user.get("present_crop", "crop")
+        crop = current_user.get("present_crop") or "crop"
         for slot in plan.get("irrigation_schedule", []):
             try:
                 await send_irrigation_reminder(email, crop, slot)
@@ -110,8 +110,8 @@ async def voice_chat(
         
     profile = {
         "name": current_user.get("username", "Farmer"),
-        "current_crop": current_user.get("present_crop", ""),
-        "crop_stage": current_user.get("present_crop_stage", ""),
+        "current_crop": current_user.get("present_crop") or "",
+        "crop_stage": current_user.get("present_crop_stage") or "",
         "total_area": str(current_user.get("land_acres", "")),
         "soil_type": current_user.get("soil_data", {}).get("texture", ""),
         "soil_ph": str(current_user.get("soil_data", {}).get("ph", "")),

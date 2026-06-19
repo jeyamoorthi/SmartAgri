@@ -113,7 +113,7 @@ async def get_subsidies(
     
     # Resolve parameters prioritizing current user profile
     s_state = profile.get("state", state) or state
-    s_crop = crop or profile.get("crop") or current_user.get("present_crop", "tomato")
+    s_crop = crop or profile.get("crop") or current_user.get("present_crop") or "tomato"
     try:
         s_size = float(farm_size) if farm_size is not None else float(profile.get("farm_size") or current_user.get("land_acres", 2.0))
     except Exception:

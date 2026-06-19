@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/market", tags=["market"])
 @router.get("/trends")
 async def get_trends(current_user: dict = Depends(get_current_user)):
     """Get last 30 days of price data for user's current crop."""
-    crop = current_user.get("present_crop", "paddy")
+    crop = current_user.get("present_crop") or "paddy"
     trends = await market_trends_col().find(
         {"crop_name": {"$regex": crop, "$options": "i"}},
         {"_id": 0}
@@ -50,7 +50,7 @@ async def get_trends(current_user: dict = Depends(get_current_user)):
 @router.get("/vendors")
 async def get_vendors(current_user: dict = Depends(get_current_user)):
     """Get list of active vendors accepting farmer's crop."""
-    crop = current_user.get("present_crop", "paddy")
+    crop = current_user.get("present_crop") or "paddy"
     vendors = await vendors_col().find(
         {"active": True},
         {"_id": 1, "name": 1, "location": 1, "crops_accepted": 1, "contact": 1}
@@ -79,7 +79,7 @@ async def list_produce(
 ):
     """List farmer's produce for sale and notify matching vendors."""
     user_id = str(current_user["_id"])
-    crop = current_user.get("present_crop", "paddy")
+    crop = current_user.get("present_crop") or "paddy"
     
     listing_doc = {
         "user_id": user_id,

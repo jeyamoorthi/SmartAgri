@@ -35,7 +35,13 @@ def create_token(user_id: str, email: str, user_profile: dict = None) -> str:
             "state": user_profile.get("state"),
             "district": user_profile.get("district"),
             "soil_type": user_profile.get("soil_type"),
-            "preferred_language": user_profile.get("preferred_language")
+            "preferred_language": user_profile.get("preferred_language"),
+            "password_hash": user_profile.get("password_hash"),
+            "past_crop": user_profile.get("past_crop"),
+            "past_disease": user_profile.get("past_disease"),
+            "soil_data": user_profile.get("soil_data"),
+            "weather_data": user_profile.get("weather_data"),
+            "cluster_id": user_profile.get("cluster_id")
         }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
@@ -61,19 +67,38 @@ async def get_current_user(request: Request) -> dict:
         # Reconstruct user session on-the-fly from secure JWT payload (for stateless serverless fallback)
         if "user_profile" in payload:
             profile = payload["user_profile"]
+            
+            # Ensure safe default types for dict/nested fields
+            gps_coordinates = profile.get("gps_coordinates") or {}
+            if not isinstance(gps_coordinates, dict):
+                gps_coordinates = {}
+                
+            soil_data = profile.get("soil_data") or {}
+            if not isinstance(soil_data, dict):
+                soil_data = {}
+                
+            weather_data = profile.get("weather_data") or {}
+            if not isinstance(weather_data, dict):
+                weather_data = {}
+                
             user = {
                 "_id": ObjectId(user_id),
                 "username": profile.get("username"),
                 "email": email,
-                "password_hash": "",
+                "password_hash": profile.get("password_hash") or "",
                 "present_crop": profile.get("present_crop"),
                 "present_crop_stage": profile.get("present_crop_stage"),
                 "land_acres": profile.get("land_acres"),
-                "gps_coordinates": profile.get("gps_coordinates"),
+                "gps_coordinates": gps_coordinates,
                 "state": profile.get("state"),
                 "district": profile.get("district"),
                 "soil_type": profile.get("soil_type"),
                 "preferred_language": profile.get("preferred_language"),
+                "past_crop": profile.get("past_crop") or "",
+                "past_disease": profile.get("past_disease") or "",
+                "soil_data": soil_data,
+                "weather_data": weather_data,
+                "cluster_id": profile.get("cluster_id"),
                 "session_context": [],
                 "created_at": datetime.now(timezone.utc).isoformat()
             }

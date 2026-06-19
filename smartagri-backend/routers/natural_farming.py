@@ -120,8 +120,8 @@ async def generate_farming_plan(current_user: dict = Depends(get_current_user)):
     Uses AI Gateway for advisory generation.
     """
     try:
-        crop = current_user.get("present_crop", "Tomato")
-        soil_data = current_user.get("soil_data", {})
+        crop = current_user.get("present_crop") or "Tomato"
+        soil_data = current_user.get("soil_data") or {}
         soil = soil_data.get("texture", "Clay")
         prompt = f"Create a detailed 3-step natural farming transition plan for {crop} grown in {soil} soil."
         
