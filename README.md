@@ -1,6 +1,5 @@
 # 🌾 SmartAgri — AI-Powered Multilingual Farmer Voice Assistant & Precision Dashboard
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/jeyamoorthi/SmartAgri)
 
 SmartAgri is a modern, voice-first agricultural consultant designed specifically for Indian farmers. The application is built around the philosophy of **"Answer First, Navigate Second"**, prioritizing immediate, context-aware speech feedback in regional languages while providing rich, optional data cards and navigation on the supporting dashboard.
 
