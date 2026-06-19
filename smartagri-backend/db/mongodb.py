@@ -254,12 +254,28 @@ def get_seeded_mock_db():
     return mdb
 
 
+def ensure_db():
+    """Ensure database is initialized (lazy loading for serverless environments)."""
+    global client, db
+    if db is not None:
+        return db
+        
+    if "placeholder_please_replace" in MONGODB_URI or "placeholder" in MONGODB_URI.lower():
+        db = get_seeded_mock_db()
+    else:
+        try:
+            client = AsyncIOMotorClient(MONGODB_URI)
+            db = client[MONGODB_DB]
+        except Exception as e:
+            db = get_seeded_mock_db()
+    return db
+
+
 async def connect_db():
     """Connect to MongoDB Atlas, falling back to a pre-seeded MockDatabase if unreachable."""
     global client, db
     
     if "placeholder_please_replace" in MONGODB_URI or "placeholder" in MONGODB_URI.lower():
-        print("[MongoDB] Placeholder detected. Falling back to pre-seeded MockDatabase.")
         db = get_seeded_mock_db()
         return
         
@@ -284,33 +300,33 @@ async def close_db():
 
 def get_db():
     """Return the database instance."""
-    return db
+    return ensure_db()
 
 
 # ── Collection accessors ──────────────────────────────────────────────────────
 def users_col():
-    return db["users"]
+    return ensure_db()["users"]
 
 def market_trends_col():
-    return db["market_trends"]
+    return ensure_db()["market_trends"]
 
 def pest_alerts_col():
-    return db["pest_alerts"]
+    return ensure_db()["pest_alerts"]
 
 def advisory_plans_col():
-    return db["advisory_plans"]
+    return ensure_db()["advisory_plans"]
 
 def products_col():
-    return db["products"]
+    return ensure_db()["products"]
 
 def vendors_col():
-    return db["vendors"]
+    return ensure_db()["vendors"]
 
 def exotic_recommendations_col():
-    return db["exotic_recommendations"]
+    return ensure_db()["exotic_recommendations"]
 
 def orders_col():
-    return db["orders"]
+    return ensure_db()["orders"]
 
 def produce_listings_col():
-    return db["produce_listings"]
+    return ensure_db()["produce_listings"]
