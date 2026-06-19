@@ -378,29 +378,7 @@ export default function VoiceAssistantFAB() {
         </div>
       )}
 
-      {/* ── Path-based suggestions ── */}
-      {!isRecording && !isProcessing && !isPlaying && (
-        <div className="flex flex-col items-end gap-1.5 max-w-xs animate-fade-in">
-          <span className="text-[9px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50/80 px-2 py-0.5 rounded-full border border-emerald-100/50">
-            Suggested Actions
-          </span>
-          <div className="flex flex-wrap gap-1 justify-end">
-            {getSuggestions().map((cmd) => (
-              <button
-                key={cmd}
-                onClick={async () => {
-                  setDialogue({ userText: cmd, agentText: 'Thinking...', nativeAgentText: 'Thinking...' });
-                  setShowBubble(true);
-                  await submitVoiceCommand("", cmd);
-                }}
-                className="text-[10px] bg-white hover:bg-emerald-50 border border-gray-150 hover:border-emerald-300 font-bold rounded-full px-2.5 py-1.5 shadow-sm text-gray-700 transition-all active:scale-95"
-              >
-                "{cmd}"
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+
 
       {/* ── FAB UI Panel ── */}
       <div className="flex items-center gap-3 bg-white/90 backdrop-blur-xl border border-gray-100 px-4 py-3 rounded-full shadow-2xl">
