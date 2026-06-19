@@ -10,7 +10,7 @@ import API from '../api/axios';
 export default function VoiceConsultant() {
   const navigate = useNavigate();
   const { language, t } = useLanguage();
-  const [activeTab, setActiveTab] = useState('voice'); // 'voice' | 'disease' | 'subsidies'
+  const [activeTab, setActiveTab] = useState('voice'); // 'voice' | 'subsidies'
   
   // User profile
   const [user, setUser] = useState(null);
@@ -32,12 +32,7 @@ export default function VoiceConsultant() {
   const [playingLocalText, setPlayingLocalText] = useState(null);
   const [isPlayingLocal, setIsPlayingLocal] = useState(false);
 
-  // Disease Diagnostics State
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [cropContext, setCropContext] = useState('');
-  const [diagnosisResult, setDiagnosisResult] = useState(null);
-  const [isDiagnosing, setIsDiagnosing] = useState(false);
+
 
   // Subsidies State
   const [subsidies, setSubsidies] = useState([]);
@@ -53,7 +48,7 @@ export default function VoiceConsultant() {
     if (storedUser) {
       const parsed = JSON.parse(storedUser);
       setUser(parsed);
-      setCropContext(parsed.present_crop || '');
+
       
       const profile = parsed.farmer_profile || {};
       setEditState(profile.state || parsed.state || 'Tamil Nadu');
@@ -107,7 +102,7 @@ export default function VoiceConsultant() {
       
       setUser(response.data);
       localStorage.setItem('smartagri_user', JSON.stringify(response.data));
-      setCropContext(response.data.present_crop || '');
+
       setShowProfileModal(false);
       
       if (activeTab === 'subsidies') {
@@ -242,84 +237,7 @@ export default function VoiceConsultant() {
     }
   };
 
-  // Disease image handling
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
-  const handleDiseaseSubmit = async () => {
-    if (!imagePreview) return;
-    setIsDiagnosing(true);
-    setDiagnosisResult(null);
-    try {
-      const base64Image = imagePreview.split(',')[1];
-      const res = await voiceDiagnose(base64Image, language, cropContext);
-      
-      setDiagnosisResult(res);
-      playResponse(res.audio, res.translated_answer || res.disease_name, res.mime_type || 'audio/wav');
-    } catch (e) {
-      console.error("Diagnosis failed:", e);
-      alert("Failed to analyze image. Please try again.");
-    } finally {
-      setIsDiagnosing(false);
-    }
-  };
-
-  // Disease conversational follow-ups
-  const handleDiseaseFollowUp = async (type) => {
-    if (!diagnosisResult) return;
-    const diseaseName = diagnosisResult.disease_name;
-    let textQuery = "";
-    
-    if (type === 'remedy') {
-      textQuery = `Give organic remedy for ${diseaseName}`;
-    } else if (type === 'prevention') {
-      textQuery = `What is the prevention plan for ${diseaseName}`;
-    } else if (type === 'severity') {
-      textQuery = `Explain severity of ${diseaseName}`;
-    }
-    
-    setActiveTab('voice');
-    setIsProcessing(true);
-    try {
-      const response = await voiceConverse("", language, user, false, textQuery);
-      if (response.error) throw new Error(response.error);
-      
-      const newMsg = {
-        id: Date.now(),
-        userText: response.transcribed || textQuery,
-        agentText: response.answer_local || response.answer || '...',
-        englishText: response.answer || '',
-        audio: response.audio || null,
-        mimeType: response.mime_type || 'audio/wav',
-        action: response.action || 'AnswerOnly',
-        target: response.target || null,
-        suggestLabel: response.suggest_label || null,
-        dataCard: response.data_card || null
-      };
-      setMessages(prev => [...prev, newMsg]);
-      playResponse(response.audio, response.answer_local, response.mime_type || 'audio/wav');
-      
-      if (response.action === 'Navigate' && response.target) {
-        setTimeout(() => {
-          navigate(response.target);
-        }, 1200);
-      }
-    } catch (e) {
-      console.error("Disease follow up failed:", e);
-      alert("Failed to get follow up answer.");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
 
   // Speak all subsidies
   const speakSubsidies = () => {
@@ -338,11 +256,6 @@ export default function VoiceConsultant() {
       en: ["Tomato price today?", "What is the 5-layer cropping model?", "How to make Jivamrita?", "What is ZBNF?"],
       ta: ["தக்காளி விலை?", "5 அடுக்கு பயிர் முறை என்றால் என்ன?", "ஜீவாமிர்தம் செய்வது எப்படி?", "இயற்கை விவசாயம்?"],
       hi: ["टमाटर का दाम?", "5-स्तरीय खेती मॉडल क्या है?", "जीवामृत कैसे बनाएं?", "जैविक खेती क्या है?"]
-    },
-    disease: {
-      en: ["Is this leaf spot or early blight?", "Organic remedy for leaf rust?", "How to prevent stem borer?", "Neemastra formulation recipe?"],
-      ta: ["இது இலைப்புள்ளி நோயா?", "இலை துரு நோய் தீர்வு?", "தண்டு துளைப்பானை தடுப்பது எப்படி?", "நீமாஸ்திரம் தயாரிப்பு?"],
-      hi: ["क्या यह पत्ती धब्बा है?", "पत्ती के जंग का जैविक उपाय?", "तना छेदक से बचाव कैसे करें?", "नीमास्त्र बनाने की विधि?"]
     },
     subsidies: {
       en: ["Am I eligible for PM-KISAN?", "What subsidies are for organic farming?", "How to apply for seed subsidy?", "Documents for tractor subsidy?"],
@@ -621,14 +534,6 @@ export default function VoiceConsultant() {
           {t('voiceConsultant').split(' ')[0]}
         </button>
         <button
-          onClick={() => { setActiveTab('disease'); stopLocalSpeech(); }}
-          className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all ${
-            activeTab === 'disease' ? 'bg-emerald-600 text-white shadow-md' : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          {t('organicRemedy').split(' ')[0]}
-        </button>
-        <button
           onClick={() => { setActiveTab('subsidies'); stopLocalSpeech(); }}
           className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all ${
             activeTab === 'subsidies' ? 'bg-emerald-600 text-white shadow-md' : 'text-gray-500 hover:text-gray-700'
@@ -717,137 +622,6 @@ export default function VoiceConsultant() {
               isProcessing={isProcessing} 
             />
           </div>
-        </div>
-      )}
-
-      {activeTab === 'disease' && (
-        <div className="flex flex-col gap-4 animate-fade-in">
-          {/* Quick Suggestions Bubbles */}
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[var(--brand-700)] px-1">
-              Suggestions
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {getTabSuggestions().map((cmd) => (
-                <button
-                  key={cmd}
-                  onClick={() => handleSuggestionClick(cmd)}
-                  className="text-[10px] bg-white border border-emerald-100 hover:border-emerald-300 font-bold rounded-full px-3 py-1.5 shadow-sm text-gray-700 transition-colors"
-                >
-                  "{cmd}"
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Photo Scan Input */}
-          <div className="app-card p-4 flex flex-col gap-4">
-            <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Upload Crop Image</h3>
-            
-            <div className="flex flex-col items-center gap-3">
-              <div className="relative w-full h-40 border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center bg-gray-50 overflow-hidden group">
-                {imagePreview ? (
-                  <img src={imagePreview} alt="Leaf Preview" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="flex flex-col items-center gap-1.5 text-gray-400">
-                    <Camera className="w-8 h-8 text-gray-300" />
-                    <span className="text-xs font-semibold">Take leaf photo or upload</span>
-                  </div>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                />
-              </div>
-
-              {/* Crop Context input */}
-              <div className="w-full">
-                <label className="block text-[9px] font-black uppercase tracking-wider text-gray-400 mb-1 px-1">Crop Name (e.g. Tomato)</label>
-                <input
-                  type="text"
-                  value={cropContext}
-                  onChange={(e) => setCropContext(e.target.value)}
-                  placeholder="Tomato"
-                  className="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-xs outline-none bg-gray-50/50"
-                />
-              </div>
-
-              <button
-                onClick={handleDiseaseSubmit}
-                disabled={!imagePreview || isDiagnosing}
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-3 text-xs font-black shadow-md flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
-              >
-                {isDiagnosing ? 'Analyzing Crop Image...' : 'Diagnose Plant Disease'}
-              </button>
-            </div>
-          </div>
-
-          {/* Diagnosis results card */}
-          {diagnosisResult && (
-            <div className="bg-white rounded-3xl border border-[var(--line)] shadow-sm overflow-hidden animate-fade-in">
-              <div className="bg-red-50 px-4 py-3 flex items-center justify-between border-b border-red-100">
-                <div className="flex items-center gap-2 text-red-800">
-                  <ShieldAlert className="w-4 h-4 text-red-500" />
-                  <span className="text-xs font-black uppercase tracking-wider">{diagnosisResult.disease_name}</span>
-                </div>
-                <span className="text-[10px] bg-red-100 text-red-700 font-bold rounded-full px-2 py-0.5">
-                  Severity: {diagnosisResult.severity_level || 'Moderate'}
-                </span>
-              </div>
-              
-              <div className="p-4 space-y-4">
-                {/* Organic Remedies */}
-                <div>
-                  <h4 className="text-[10px] font-black uppercase tracking-wider text-emerald-800 mb-1.5">🌿 Organic Remedies</h4>
-                  <ul className="space-y-1.5">
-                    {diagnosisResult.organic_remedies?.map((rem, i) => (
-                      <li key={i} className="text-xs font-semibold text-gray-700 flex items-start gap-1.5">
-                        <span className="text-emerald-500 mt-0.5">✔</span>
-                        <span>{rem}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Prevention Steps */}
-                <div>
-                  <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1.5">📍 Prevention Steps</h4>
-                  <ul className="space-y-1.5">
-                    {diagnosisResult.prevention_steps?.map((step, i) => (
-                      <li key={i} className="text-xs font-semibold text-gray-600 flex items-start gap-1.5">
-                        <span className="text-amber-500 mt-0.5">•</span>
-                        <span>{step}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Disease conversational follow-ups */}
-                <div className="flex flex-wrap gap-2 pt-3 border-t border-gray-100">
-                  <button
-                    onClick={() => handleDiseaseFollowUp('remedy')}
-                    className="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-850 font-black text-[10px] rounded-xl py-2.5 px-2.5 transition-all text-center border border-emerald-100 shadow-sm"
-                  >
-                    🌱 Organic Remedy
-                  </button>
-                  <button
-                    onClick={() => handleDiseaseFollowUp('prevention')}
-                    className="flex-1 bg-amber-50 hover:bg-amber-100 text-amber-850 font-black text-[10px] rounded-xl py-2.5 px-2.5 transition-all text-center border border-amber-100 shadow-sm"
-                  >
-                    🛡 Prevention Plan
-                  </button>
-                  <button
-                    onClick={() => handleDiseaseFollowUp('severity')}
-                    className="flex-1 bg-red-50 hover:bg-red-100 text-red-850 font-black text-[10px] rounded-xl py-2.5 px-2.5 transition-all text-center border border-red-100 shadow-sm"
-                  >
-                    ⚠️ Severity Details
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       )}
 

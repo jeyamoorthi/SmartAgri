@@ -9,6 +9,7 @@ import DashboardLayout from './components/DashboardLayout';
 import MarketPage from './pages/MarketPage';
 import PestPage from './pages/PestPage';
 import RecommendationsPage from './pages/RecommendationsPage';
+import DiseasePage from './pages/DiseasePage';
 
 // Protected Route Guard
 const ProtectedRoute = ({ children }) => {
@@ -55,6 +56,7 @@ function App() {
               <Route path="/home" element={<Home />} />
               <Route path="/market" element={<MarketPage />} />
               <Route path="/pest" element={<PestPage />} />
+              <Route path="/disease" element={<DiseasePage />} />
               <Route path="/recommendations" element={<RecommendationsPage />} />
               <Route path="/voice-consultant" element={<VoiceConsultant />} />
             </Route>

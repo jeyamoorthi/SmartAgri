@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, useNavigate, NavLink } from 'react-router-dom';
-import { LogOut, Home, TrendingUp, ShieldAlert, Award, Mic } from 'lucide-react';
+import { LogOut, Home, TrendingUp, ShieldAlert, Award, Mic, Camera } from 'lucide-react';
 import API from '../api/axios';
 import VoiceAssistantFAB from './VoiceAssistantFAB';
 import { useLanguage } from '../context/LanguageContext';
@@ -89,7 +89,7 @@ export default function DashboardLayout() {
   ];
 
   const navItemsRight = [
-    { path: '/pest', label: t('pest'), icon: ShieldAlert },
+    { path: '/disease', label: t('diseaseScan'), icon: Camera },
     { path: '/recommendations', label: t('crops'), icon: Award },
   ];
 

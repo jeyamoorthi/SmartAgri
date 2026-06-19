@@ -162,7 +162,7 @@ Determine the semantic intent (Layer 1) and the required UX action (Layer 2):
 
 ### Navigation Targets
 - Market Page -> Target: "/market"
-- Disease/Pest Page -> Target: "/pest"
+- Disease Detection Page -> Target: "/disease"
 - Crop Recommendation Page -> Target: "/recommendations"
 - Home/Dashboard -> Target: "/home"
 - Otherwise -> Target: null
@@ -171,7 +171,7 @@ Output ONLY a valid JSON object (no markdown, no backticks, no JSON code block w
 {
   "intent": "AskPrice" | "AskDiseaseRemedy" | "AskScheme" | "AskRecommendation" | "OpenPage" | "GeneralQuestion",
   "action": "AnswerOnly" | "AnswerAndSuggestNavigation" | "Navigate",
-  "target": "/market" | "/pest" | "/recommendations" | "/home" | null,
+  "target": "/market" | "/disease" | "/recommendations" | "/home" | null,
   "tool_used": "get_market_price" | "get_weather" | "get_schemes" | "get_crop_recommendation" | "diagnose_disease" | "get_natural_farming_guide" | "none",
   "answer": "Formulate a direct, conversational spoken response in English. Keep it under 45 words. Be direct, friendly, and actionable. State key values from the pre-fetched context (e.g., exact price, trend, benefit amount, primary crop name). Speak the answer first. Never say you are redirecting unless the action is Navigate.",
   "suggest_label": "A short farmer-friendly button label in English to suggest navigation (e.g., 'View Detailed Market Trends', 'Open Disease Dashboard', 'Open Subsidy Center', 'Explore Crop Recommendations'). Keep it under 4 words. Set to null if action is AnswerOnly or Navigate."
@@ -226,10 +226,10 @@ async def parse_intent_and_advisory(question: str, profile: dict = None, tool_co
             return {
                 "intent": "AskDiseaseRemedy",
                 "action": "AnswerAndSuggestNavigation",
-                "target": "/pest",
+                "target": "/disease",
                 "tool_used": "diagnose_disease",
                 "answer": "Early Blight detected. We recommend spraying 5% Neem Seed Kernel Extract (NSKE) weekly.",
-                "suggest_label": "Open Disease Dashboard"
+                "suggest_label": "Open Disease Scan"
             }
         elif any(w in q_lower for w in ["recommendation", "pick", "suggest", "grow", "plant"]):
             return {

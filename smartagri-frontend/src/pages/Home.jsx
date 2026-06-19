@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, ShieldAlert, Award, Mic, CloudSun, Leaf, ChevronRight } from 'lucide-react';
+import { TrendingUp, ShieldAlert, Award, Mic, CloudSun, Leaf, ChevronRight, Camera } from 'lucide-react';
 import FarmerAvatar from '../components/FarmerAvatar';
 import { useLanguage, VOICE_SUGGESTIONS } from '../context/LanguageContext';
 
@@ -78,13 +78,13 @@ export default function Home() {
       voice: language === 'ta' ? '"மண்டி விலை"' : language === 'hi' ? '"मंडी भाव"' : '"go to market"',
     },
     {
-      name: t('pest'),
+      name: t('diseaseScan'),
       desc: t('tapToAsk'),
-      path: '/pest',
-      icon: ShieldAlert,
+      path: '/disease',
+      icon: Camera,
       color: 'text-amber-600',
       bg: 'bg-amber-50',
-      voice: language === 'ta' ? '"பூச்சி எச்சரிக்கை"' : language === 'hi' ? '"कीट अलर्ट"' : '"open pest alerts"',
+      voice: language === 'ta' ? '"நோய் கண்டறிதல்"' : language === 'hi' ? '"रोग पहचान"' : '"open disease scan"',
     },
     {
       name: t('crops'),
