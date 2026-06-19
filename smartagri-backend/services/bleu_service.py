@@ -2,11 +2,22 @@ import re
 import nltk
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 
+import os
+
+# Configure a writeable nltk_data directory in serverless environments (/tmp)
+nltk_data_dir = os.path.join("/tmp", "nltk_data")
+os.makedirs(nltk_data_dir, exist_ok=True)
+if nltk_data_dir not in nltk.data.path:
+    nltk.data.path.append(nltk_data_dir)
+
 try:
     nltk.data.find("tokenizers/punkt")
 except LookupError:
-    nltk.download("punkt", quiet=True)
-    nltk.download("punkt_tab", quiet=True)
+    try:
+        nltk.download("punkt", download_dir=nltk_data_dir, quiet=True)
+        nltk.download("punkt_tab", download_dir=nltk_data_dir, quiet=True)
+    except Exception as e:
+        print(f"[NLTK] Warning: Could not download packages: {e}")
 
 _bleu_smoothing = SmoothingFunction().method1
 
