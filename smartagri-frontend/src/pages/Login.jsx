@@ -24,7 +24,18 @@ export default function Login() {
       localStorage.setItem('smartagri_user', JSON.stringify(res.data.user));
       navigate('/voice-consultant');
     } catch (err) {
-      alert(err.response?.data?.detail || 'Login failed. Please check your credentials.');
+      const detail = err.response?.data?.detail;
+      let errorMsg = 'Login failed. Please check your credentials.';
+      if (detail) {
+        if (Array.isArray(detail)) {
+          errorMsg = detail.map(d => `${d.loc[d.loc.length - 1]}: ${d.msg}`).join('\n');
+        } else if (typeof detail === 'string') {
+          errorMsg = detail;
+        } else {
+          errorMsg = JSON.stringify(detail);
+        }
+      }
+      alert(errorMsg);
       setIsLoading(false);
     }
   };

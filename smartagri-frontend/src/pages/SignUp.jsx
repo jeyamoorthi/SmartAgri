@@ -55,7 +55,18 @@ export default function SignUp() {
       navigate('/login');
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.detail || 'Registration failed');
+      const detail = err.response?.data?.detail;
+      let errorMsg = 'Registration failed';
+      if (detail) {
+        if (Array.isArray(detail)) {
+          errorMsg = detail.map(d => `${d.loc[d.loc.length - 1]}: ${d.msg}`).join('\n');
+        } else if (typeof detail === 'string') {
+          errorMsg = detail;
+        } else {
+          errorMsg = JSON.stringify(detail);
+        }
+      }
+      alert(errorMsg);
       setIsLoading(false);
     }
   };
