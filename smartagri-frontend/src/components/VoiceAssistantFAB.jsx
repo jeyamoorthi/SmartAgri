@@ -383,25 +383,7 @@ export default function VoiceAssistantFAB() {
       {/* ── FAB UI Panel ── */}
       <div className="flex items-center gap-3 bg-white/90 backdrop-blur-xl border border-gray-100 px-4 py-3 rounded-full shadow-2xl">
         
-        {/* Language Selector */}
-        <div className="flex items-center gap-1.5 border-r border-gray-200 pr-3">
-          <span className="text-[10px] font-extrabold text-emerald-800 tracking-wider">LANG</span>
-          <select 
-            value={selectedLang} 
-            onChange={handleLanguageChange}
-            disabled={isRecording || isProcessing}
-            className="bg-transparent text-xs font-black text-emerald-950 outline-none cursor-pointer"
-          >
-            {languages.map(lang => (
-              <option key={lang.code} value={lang.code}>
-                {lang.native || lang.name}
-              </option>
-            ))}
-            {languages.length === 0 && (
-              <option value="ta">Tamil</option>
-            )}
-          </select>
-        </div>
+
 
         {/* Visualizer Wave or Status */}
         {isRecording ? (
