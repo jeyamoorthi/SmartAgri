@@ -39,7 +39,7 @@ SpeechRecognition==3.10.1
 # Audio format conversion
 pydub==0.25.1
 # Audio playback (Windows/Linux/Mac)
-pyaudio==0.2.14
+# pyaudio==0.2.14 (removed for serverless compatibility)
 # Text-to-speech synthesis
 gTTS==2.4.0
 # Text processing for NLTK-based BLEU scoring

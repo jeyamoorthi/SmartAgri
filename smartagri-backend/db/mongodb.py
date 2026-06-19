@@ -18,11 +18,16 @@ db = None
 async def connect_db():
     """Connect to MongoDB Atlas."""
     global client, db
-    client = AsyncIOMotorClient(MONGODB_URI)
-    db = client[MONGODB_DB]
-    # Verify connection
-    await client.admin.command("ping")
-    print(f"[MongoDB] Connected to database: {MONGODB_DB}")
+    try:
+        client = AsyncIOMotorClient(MONGODB_URI)
+        db = client[MONGODB_DB]
+        # Verify connection
+        await client.admin.command("ping")
+        print(f"[MongoDB] Connected to database: {MONGODB_DB}")
+    except Exception as e:
+        print(f"[MongoDB] Warning: Could not connect to database on startup: {e}")
+        # Note: client and db are still initialized, but operations requiring DB will fail.
+
 
 
 async def close_db():

@@ -3,7 +3,7 @@ services:
   - type: web
     name: smartagri-backend
     env: python
-    rootDir: backend
+    rootDir: smartagri-backend
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
@@ -30,7 +30,7 @@ services:
   - type: web
     name: smartagri-frontend
     env: static
-    rootDir: frontend
+    rootDir: smartagri-frontend
     buildCommand: npm install && npm run build
     publishDir: dist
     envVars:
