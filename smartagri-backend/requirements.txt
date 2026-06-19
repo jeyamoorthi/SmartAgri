@@ -24,6 +24,7 @@ email-validator==2.2.0
 # ──────────────────── SCHEDULING ──────────────────────────
 google-generativeai==0.8.0
 groq==0.4.1
+openai>=1.0.0
 
 # ──────────────────── HTTP & NETWORKING ─────────────────────────
 requests==2.31.0
